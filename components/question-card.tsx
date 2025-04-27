@@ -116,7 +116,7 @@ export default function QuestionCard({ questionData, isBookmarked, onBookmarkEve
               <img
                 key={index}
                 src={url}
-                alt={`Question ${questionData.questionId} Image ${index + 1}`}
+                alt={`Question ${questionData.questionId} ${index + 1}`}
                 className="rounded-lg border"
               />
             ))}
@@ -146,7 +146,7 @@ export default function QuestionCard({ questionData, isBookmarked, onBookmarkEve
                       <img
                         key={i}
                         src={url}
-                        alt={`Option ${idx + 1} Image ${i + 1}`}
+                        alt={`Option ${idx + 1} ${i + 1}`}
                         className="rounded-lg border"
                       />
                     ))}
