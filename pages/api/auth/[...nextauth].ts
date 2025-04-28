@@ -34,13 +34,11 @@ export default NextAuth({
     async jwt({ token, user }) {
       if (user) {
         token.accessToken = user.accessToken;
-        token.refreshToken = user.refreshToken;
       }
       return token;
     },
     async session({ session, token }) {
       session.accessToken = token.accessToken;
-      session.refreshToken = token.refreshToken;
       return session;
     }
   },
