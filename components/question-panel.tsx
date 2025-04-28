@@ -20,8 +20,8 @@ interface QuestionsResponse {
   questions: Question[];
 }
 
-export default function QuestionPanel({ examId }) {
-  const [index, setIndex] = useState(0);
+export default function QuestionPanel({ examId, questionId }) {
+  const [index, setIndex] = useState(questionId - 1);
   const [loadedQuestions, setQuestions] = useState(new Map<number, Question>());
   const [count, setCount] = useState(0);
   const [lastEvaluatedKey, setLastEvaluatedKey] = useState<number | undefined>();
@@ -59,7 +59,6 @@ export default function QuestionPanel({ examId }) {
 
   const fetchBookmarks = async () => {
     try {
-      setIsLoading(true);
 
       const params = new URLSearchParams({
         examId: examId,
@@ -74,28 +73,26 @@ export default function QuestionPanel({ examId }) {
       );
 
       if (response.ok) {
-        const { questionIds } = await response.json();
-        setBookmarks(new Set(questionIds));
+        const data = await response.json();
+        setBookmarks(new Set(data.bookmarks[examId].questionIds));
+        console.log(bookmarks);
       } else if (response.status === 401) {
         signOut();
       }
     } catch (error) {
       console.log(error);
-    } finally {
-      setIsLoading(false);
     }
   };
 
   const fetchQuestions = async (lastKey?: number) => {
     try {
       setIsLoading(true);
-
       const params = new URLSearchParams({
         examId: examId,
         pageSize: '20'
       });
 
-      if (lastKey) {
+      if (lastKey && lastKey >= 0) {
         params.append('lastEvaluatedKey', String(lastKey));
       }
 
@@ -130,15 +127,14 @@ export default function QuestionPanel({ examId }) {
     if (session) {
       fetchMetadata();
       fetchBookmarks();
-      fetchQuestions();
     }
   }, [session]);
 
   useEffect(() => {
     if (session) {
       if (!loadedQuestions.has(index)) {
-        if (index == 0) {
-          fetchQuestions();
+        if (index === 0) {
+          fetchQuestions(-1);
         }
         else {
           fetchQuestions(index - 1);

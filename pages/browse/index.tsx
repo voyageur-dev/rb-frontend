@@ -30,10 +30,14 @@ export default function DocsPage() {
     if (!session) {
       router.push(siteConfig.access.login);
     }
-    else if (selectedExam) {
+  }, [session]);
+
+  useEffect(() => {
+    if (selectedExam) {
       router.push(`/exams/${selectedExam}`);
     }
-  }, [session, selectedExam]);
+  }, [selectedExam]);
+
 
   const fetchMetadata = async () => {
     try {
