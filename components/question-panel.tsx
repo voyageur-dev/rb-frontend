@@ -74,8 +74,11 @@ export default function QuestionPanel({ examId, questionId }) {
 
       if (response.ok) {
         const data = await response.json();
-        setBookmarks(new Set(data.bookmarks[examId].questionIds));
-        console.log(bookmarks);
+        const newBookmarks = new Set();
+        for (const id of data.bookmarks[examId]) {
+          newBookmarks.add(id);
+        }
+        setBookmarks(newBookmarks);
       } else if (response.status === 401) {
         signOut();
       }
@@ -92,9 +95,11 @@ export default function QuestionPanel({ examId, questionId }) {
         pageSize: '20'
       });
 
-      if (lastKey && lastKey >= 0) {
+      if (lastKey !== undefined && lastKey >= 0) {
         params.append('lastEvaluatedKey', String(lastKey));
       }
+
+      console.log(params.toString());
 
       const response = await fetch(`${process.env.NEXT_PUBLIC_GATEWAY_BASEURL}/rb/questions?${params.toString()}`,
         {
@@ -137,6 +142,8 @@ export default function QuestionPanel({ examId, questionId }) {
           fetchQuestions(-1);
         }
         else {
+          console.log("here")
+          console.log(index - 1);
           fetchQuestions(index - 1);
         }
       }
