@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Card, CardBody, CardHeader } from "@heroui/card";
-import { Badge, Checkbox, Divider } from "@heroui/react";
+import { Checkbox, Divider } from "@heroui/react";
 import { Button } from "@heroui/button";
 import { FaRegBookmark, FaBookmark } from "react-icons/fa";
 import { useSession } from "next-auth/react";

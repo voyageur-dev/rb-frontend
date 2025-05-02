@@ -107,7 +107,7 @@ export default function BookmarksPage() {
           ) : (
             <div className="text-center py-12">
               <p className="text-xl text-gray-600 dark:text-gray-300">
-                You haven't bookmarked any questions yet.
+                You have not bookmarked any questions yet.
               </p>
               <button 
                 className="mt-4 px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors"
