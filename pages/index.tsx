@@ -8,6 +8,8 @@ export default function IndexPage() {
   const { data: session } = useSession();
   const router = useRouter();
 
+  console.log("url", process.env.NEXTAUTH_URL)
+
   return (
     <DefaultLayout>
       <section className="flex flex-col items-center justify-center gap-4 py-8 md:py-10">
