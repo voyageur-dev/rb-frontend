@@ -3,9 +3,10 @@ import {
   Drawer, DrawerBody, DrawerContent, DrawerHeader, Listbox, ListboxItem, Spinner,useDisclosure
 } from "@heroui/react";
 import React, { useEffect, useState } from "react";
-import { signOut, useSession } from "next-auth/react";
+import { useSession } from "next-auth/react";
 import { siteConfig } from "@/config/site";
 import { useRouter } from "next/router";
+import Cookies from "js-cookie";
 
 type Metadata = {
   examId: string;
@@ -34,7 +35,13 @@ export default function DocsPage() {
 
   useEffect(() => {
     if (selectedExam) {
-      router.push(`/exams/${selectedExam}`);
+      const lastView = JSON.parse(Cookies.get("lastView"));
+      if (lastView && selectedExam in lastView) {
+        router.push(`/exams/${selectedExam}/${lastView[selectedExam]}`);
+      }
+      else {
+        router.push(`/exams/${selectedExam}/1`);
+      }
     }
   }, [selectedExam]);
 
@@ -51,12 +58,7 @@ export default function DocsPage() {
 
       if (resp.ok) {
         const { data } = await resp.json();
-
         setMetadata(data);
-      }
-      else if (resp.status === 401) {
-        console.log(resp)
-        signOut();
       }
     } catch (error) {
       console.log(error);

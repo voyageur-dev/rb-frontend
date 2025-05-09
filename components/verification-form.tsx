@@ -1,5 +1,5 @@
 import { Button } from "@heroui/button";
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import { Modal, ModalBody, ModalContent, ModalFooter, ModalHeader } from "@heroui/modal";
 import { addToast, InputOtp, useDisclosure } from "@heroui/react";
 import { Form } from "@heroui/form";
@@ -11,10 +11,10 @@ interface VerificationFormProps {
 }
 
 export default function VerificationForm({ username }: VerificationFormProps) {
-  const [isOpen, setIsOpen] = useState(true);
   const router = useRouter();
+  const formRef = useRef<HTMLFormElement>(null);
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>, onClose) => {
     e.preventDefault();
 
     const formData = new FormData(e.currentTarget);
@@ -39,8 +39,8 @@ export default function VerificationForm({ username }: VerificationFormProps) {
         color: "success",
         promise: new Promise((resolve) => setTimeout(resolve, 1000))
       });
-      setIsOpen(false);
 
+      onClose(); // close the modal
       router.push("/login");
     }
     else {
@@ -50,6 +50,8 @@ export default function VerificationForm({ username }: VerificationFormProps) {
         color: "danger",
         promise: new Promise((resolve) => setTimeout(resolve, 1000))
       });
+
+      formRef.current?.reset();
     }
   }
 
@@ -83,16 +85,17 @@ export default function VerificationForm({ username }: VerificationFormProps) {
   }
 
   return (
-    <Modal isOpen={isOpen} size="lg" backdrop="blur">
+    <Modal backdrop="blur" defaultOpen={true} size="lg">
       <ModalContent>
         {(onClose) => (
           <>
             <ModalHeader>
-              Email Verifcation
+              Email Verification
             </ModalHeader>
             <Form
               className="flex w-full"
-              onSubmit={(e) => handleSubmit(e)}
+              ref={formRef}
+              onSubmit={(e) => handleSubmit(e, onClose)}
             >
               <ModalBody className="space-y-4">
                 <p>

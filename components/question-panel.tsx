@@ -1,7 +1,9 @@
 import QuestionCard from "@/components/question-card";
 import React, { useState, useEffect } from "react";
-import { signOut, useSession } from "next-auth/react";
+import { useSession } from "next-auth/react";
 import { Pagination, Spinner } from "@heroui/react";
+import Cookies from "js-cookie";
+
 
 export interface Question {
   examId: string;
@@ -30,6 +32,20 @@ export default function QuestionPanel({ examId, questionId }) {
 
   const { data: session } = useSession();
 
+  useEffect(() => {
+    let lastView = JSON.parse(Cookies.get("lastView"));
+
+    if (lastView) {
+      lastView[examId] = index + 1;
+    }
+    else {
+      lastView = {};
+      lastView[examId] = index + 1;
+    }
+    Cookies.set("lastView", JSON.stringify(lastView));
+  }, [index]);
+
+
   const fetchMetadata = async () => {
     try {
       const resp = await fetch(`${process.env.NEXT_PUBLIC_GATEWAY_BASEURL}/rb/metadata`,
@@ -48,9 +64,6 @@ export default function QuestionPanel({ examId, questionId }) {
             setCount(metadata.count);
           }
         }
-      }
-      else if (resp.status === 401) {
-        signOut();
       }
     } catch (error) {
       console.log(error);
@@ -75,12 +88,14 @@ export default function QuestionPanel({ examId, questionId }) {
       if (response.ok) {
         const data = await response.json();
         const newBookmarks = new Set();
-        for (const id of data.bookmarks[examId]) {
-          newBookmarks.add(id);
+
+        if (data.bookmarks && examId in data.bookmarks) {
+          for (const id of data.bookmarks[examId]) {
+            newBookmarks.add(id);
+          }
         }
+
         setBookmarks(newBookmarks);
-      } else if (response.status === 401) {
-        signOut();
       }
     } catch (error) {
       console.log(error);
@@ -118,8 +133,6 @@ export default function QuestionPanel({ examId, questionId }) {
 
         setIndex(questions[0].questionId);
         setLastEvaluatedKey(questions[questions.length - 1].questionId);
-      } else if (response.status === 401) {
-        signOut();
       }
     } catch (error) {
       console.log(error);
@@ -176,7 +189,8 @@ export default function QuestionPanel({ examId, questionId }) {
                 className="flex flex-row item-center justify-center"
                 initialPage={index + 1}
                 total={count}
-                onChange={page => setIndex(page - 1)} />
+                onChange={page => setIndex(page - 1)}
+              />
           </>
         )
       }

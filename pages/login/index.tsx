@@ -11,6 +11,7 @@ import React, { useEffect, useRef } from "react";
 import { siteConfig } from "@/config/site";
 import { RiEyeCloseFill, RiEyeFill } from "react-icons/ri";
 import Cookies from 'js-cookie';
+import VerificationForm from "@/components/verification-form";
 
 
 export default function DocsPage() {
@@ -23,6 +24,8 @@ export default function DocsPage() {
 
   const [isRemembered, setIsRemembered] = React.useState(Cookies.get("userEmail"));
   const [isLoading, setIsLoading] = React.useState(false);
+  const [requiredVerification, setRequiredVerification] = React.useState(false);
+  const [username, setUsername] = React.useState("");
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -33,7 +36,13 @@ export default function DocsPage() {
 
     signIn("credentials", { redirect: false, username: data.email, password: data.password })
       .then((resp) => {
-        if (resp && !resp.ok) {
+
+        if (resp && resp.error === "EMAIL_NOT_VERIFIED") {
+          setUsername(data.email.toString());
+          setRequiredVerification(true);
+          formRef.current?.reset();
+        }
+        else if (resp && resp.status === 401) {
           // reset form
           formRef.current?.reset();
 
@@ -52,6 +61,7 @@ export default function DocsPage() {
           else {
             Cookies.remove('userEmail');
           }
+          formRef.current?.reset();
         }
 
         setIsLoading(false);
@@ -139,6 +149,11 @@ export default function DocsPage() {
           </p>
         </div>
       </div>
+      {
+        requiredVerification ?
+          <VerificationForm username={username} />
+          : <></>
+      }
     </DefaultLayout>
   );
 }

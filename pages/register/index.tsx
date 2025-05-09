@@ -9,12 +9,13 @@ import { RiEyeFill } from "react-icons/ri";
 import { RiEyeCloseFill } from "react-icons/ri";
 import { siteConfig } from "@/config/site";
 import { Form } from "@heroui/form";
-import Cookies from "js-cookie/dist/js.cookie.mjs";
 import VerificationForm from "@/components/verification-form";
+import { register, RegisterRequest, UserNotConfirmedError } from "@/lib/api/users";
 
 
 export default function DocsPage() {
   const [isVisible, setIsVisible] = React.useState(false);
+  const [isLoading, setIsLoading] = React.useState(false);
   const [isConfirmVisible, setIsConfirmVisible] = React.useState(false);
   const formRef = useRef<HTMLFormElement>(null);
   const [requiredVerification, setRequiredVerification] = React.useState(false);
@@ -25,48 +26,50 @@ export default function DocsPage() {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setIsLoading(true);
     let data = Object.fromEntries(new FormData(e.currentTarget));
 
-    if (data.password !== data.confirmPassword) {
-      addToast({
-        title: "Passwords do not match",
-        description: "Please try again.",
-        color: "danger",
-        promise: new Promise((resolve) => setTimeout(resolve, 1000))
-      });
+    try {
+      if (data.password !== data.confirmPassword) {
+        addToast({
+          title: "Passwords do not match",
+          description: "Please try again.",
+          color: "danger",
+          promise: new Promise((resolve) => setTimeout(resolve, 1000))
+        });
 
-      return;
+        return;
+      }
+
+      const req: RegisterRequest = {
+        email: data.email.toString(),
+        password: data.password.toString(),
+      };
+
+      const { username } = await register(req);
+
+      setUsername(username);
+      setRequiredVerification(true);
     }
+    catch (error) {
+      if (error instanceof UserNotConfirmedError) {
+        setUsername(data.email.toString());
+        setRequiredVerification(true);
+        return;
+      }
 
-    const resp = await fetch(`${process.env.NEXT_PUBLIC_GATEWAY_BASEURL}/users`, {
-      method: 'POST',
-      headers: {
-        "content-type": "application/json",
-      },
-      body: JSON.stringify({
-        username: data.email,
-        password: data.password,
-      }),
-    });
-
-    // reset form
-    formRef.current?.reset();
-
-    if (resp && resp.status !== 201) {
       // add notification
       addToast({
         title: "Registration failed",
-        description: "Please try again.",
+        description: error.message,
         color: "danger",
         promise: new Promise((resolve) => setTimeout(resolve, 1000))
       })
     }
-    else if (resp && resp.status === 201) {
-      console.log(resp);
-      const { username } = await resp.json();
-      console.log("username", username)
-      setUsername(username);
-      setRequiredVerification(true);
+    finally {
+      // reset form
+      formRef.current?.reset();
+      setIsLoading(false);
     }
   };
 
@@ -142,7 +145,7 @@ export default function DocsPage() {
                 Privacy Policy
               </Link>
             </Checkbox>
-            <Button className="min-w-full py-2" color="primary" type="submit" radius="none">
+            <Button isLoading={isLoading} className="min-w-full py-2" color="primary" type="submit" radius="none">
               Sign Up
             </Button>
           </Form>

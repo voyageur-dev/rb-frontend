@@ -5,6 +5,8 @@ import React, { useEffect, useState } from "react";
 import { siteConfig } from "@/config/site";
 import { useRouter } from "next/router";
 import { Spinner } from "@heroui/react";
+import { Chip } from "@heroui/chip";
+import { Button } from "@heroui/button";
 
 interface BookmarkData {
   [examId: string]: number[];
@@ -17,31 +19,34 @@ export default function BookmarksPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+
+  const fetchBookmarks = async () => {
+    try {
+      const resp = await fetch(`${process.env.NEXT_PUBLIC_GATEWAY_BASEURL}/rb/bookmarks`, {
+        headers: {
+          'Authorization': `Bearer ${session?.accessToken}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (!resp.ok) {
+        throw new Error('Failed to fetch bookmarks');
+      }
+      const { bookmarks } = await resp.json();
+      setBookmarks(bookmarks);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'An error occurred');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+
   useEffect(() => {
     if (!session) {
       router.push(siteConfig.access.login);
       return;
     }
-
-    const fetchBookmarks = async () => {
-      try {
-        const resp = await fetch(`${process.env.NEXT_PUBLIC_GATEWAY_BASEURL}/rb/bookmarks`, {
-          headers: {
-            'Authorization': `Bearer ${session?.accessToken}`,
-            'Content-Type': 'application/json'
-          }
-        });
-        if (!resp.ok) {
-          throw new Error('Failed to fetch bookmarks');
-        }
-        const { bookmarks} = await resp.json();
-        setBookmarks(bookmarks);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'An error occurred');
-      } finally {
-        setLoading(false);
-      }
-    };
 
     fetchBookmarks();
   }, [session, router]);
@@ -82,24 +87,15 @@ export default function BookmarksPage() {
                 <div key={examId} className="mb-8">
                   <h2 className="text-2xl font-semibold mb-4">{examId}</h2>
                   <div className="grid gap-4">
-                    {questionIds.map((questionId) => (
-                      <div 
-                        key={`${examId}-${questionId}`}
-                        className="p-6 rounded-lg bg-white dark:bg-gray-800 shadow-lg hover:shadow-xl transition-shadow"
-                      >
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <h3 className="text-xl font-semibold mb-2">Question {questionId + 1}</h3>
-                          </div>
-                          <button 
-                            className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors"
-                            onClick={() => router.push(`/exams/${examId}/${questionId + 1}`)}
-                          >
-                            View Question
-                          </button>
-                        </div>
-                      </div>
-                    ))}
+                    {
+                      questionIds.map((questionId) => (
+                          <Chip key={questionId + 1} className="min-h-sm min-w-sm" radius="none" color="success" variant="flat">
+                            <button key={questionId + 1 + "-btn"} onClick={() => router.push(`/exams/${examId}/${questionId + 1}`)}>
+                            #{questionId + 1}
+                            </button>
+                          </Chip>
+                      ))
+                    }
                   </div>
                 </div>
               ))}
