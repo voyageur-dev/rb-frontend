@@ -33,7 +33,7 @@ export default function QuestionPanel({ examId, questionId }) {
   const { data: session } = useSession();
 
   useEffect(() => {
-    let lastView = JSON.parse(Cookies.get("lastView"));
+    let lastView = Cookies.get("lastView") ? JSON.parse(Cookies.get("lastView")) : undefined;
 
     if (lastView) {
       lastView[examId] = index + 1;

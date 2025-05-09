@@ -35,7 +35,7 @@ export default function DocsPage() {
 
   useEffect(() => {
     if (selectedExam) {
-      const lastView = JSON.parse(Cookies.get("lastView"));
+      let lastView = Cookies.get("lastView") ? JSON.parse(Cookies.get("lastView")) : undefined;
       if (lastView && selectedExam in lastView) {
         router.push(`/exams/${selectedExam}/${lastView[selectedExam]}`);
       }
