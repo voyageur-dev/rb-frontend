@@ -14,7 +14,7 @@ export const siteConfig = {
     },
     {
       label: "Mock",
-      href: "/pricing",
+      href: "/mock",
     },
     {
       label: "Bookmark",
