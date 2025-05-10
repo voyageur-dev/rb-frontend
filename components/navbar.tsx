@@ -50,6 +50,23 @@ export const Navbar = () => {
               </Link>
             </NavbarMenuItem>
           ))}
+          <NavbarItem>
+            <Link
+              className="w-full"
+              color="danger"
+              size="lg"
+              onPress={(e) => {
+                if (session) {
+                  signOut();
+                }
+                else {
+                  router.push(siteConfig.access.login)
+                }
+              }}
+            >
+              { session ? "Logout" : "Login" }
+            </Link>
+          </NavbarItem>
         </NavbarMenu>
 
         {/* Desktop view */}
@@ -72,10 +89,10 @@ export const Navbar = () => {
       </NavbarContent>
 
       <NavbarContent
-        className="hidden sm:flex basis-1/5 sm:basis-full"
+        className="sm:flex basis-1/5 sm:basis-full"
         justify="end"
       >
-        <NavbarItem className="hidden sm:flex gap-2">
+        <NavbarItem className="sm:flex gap-2">
           <ThemeSwitch />
         </NavbarItem>
         <NavbarItem className="hidden sm:flex">

@@ -44,9 +44,9 @@ export default function QuestionCard({ questionData, isBookmarked, onBookmarkEve
   };
 
   return (
-    <Card className="max-w-4xl space-y-4 rounded-4xl shadow-lg">
-      <CardHeader className="pl-8 pr-8 pt-8 justify-between">
-        <div className="flex gap-4">
+    <Card className="max-w-4xl space-y-2 rounded-4xl shadow-lg">
+      <CardHeader className="pl-6 pr-6 justify-between">
+        <div className="pt-2 flex gap-4">
           <h2 className="pt-1.5 text-xl font-semibold">
             Question #{questionData.questionId + 1}
           </h2>
@@ -76,11 +76,11 @@ export default function QuestionCard({ questionData, isBookmarked, onBookmarkEve
         </Button>
       </CardHeader>
 
-      <div className="pl-8 pr-8">
+      <div className="pl-6 pr-6">
         <Divider />
       </div>
 
-      <CardBody className="space-y-4 pl-8 pr-8">
+      <CardBody className="space-y-3 pl-6 pr-6">
 
         <p className="text-base leading-relaxed pb">{questionData.question}</p>
 
@@ -97,7 +97,7 @@ export default function QuestionCard({ questionData, isBookmarked, onBookmarkEve
           </div>
         )}
 
-        <ul className="space-y-4">
+        <ul className="space-y-3">
           {questionData.options.map((opt, idx) => (
             <li
               key={idx}
@@ -112,7 +112,7 @@ export default function QuestionCard({ questionData, isBookmarked, onBookmarkEve
                   radius="full"
                   onChange={() => toggleSelection(idx)}
                 >
-                  <p className="pl-2">{opt.text}</p>
+                  <p className="pl-2 text-sm">{opt.text}</p>
                 </Checkbox>
                 {opt.s3ImageUrls.length > 0 && (
                   <div className="grid grid-cols-1 gap-2 mt-2">

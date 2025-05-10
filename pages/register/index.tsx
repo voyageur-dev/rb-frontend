@@ -76,7 +76,7 @@ export default function DocsPage() {
       <div className="flex h-full w-full items-center justify-center">
         <div className="flex w-full max-w-sm flex-col gap-4 rounded-large">
           <div className="flex flex-col items-center pb-6">
-            <p className="text-xl font-medium">Welcome</p>
+            <p className="text-3xl font-medium">Welcome</p>
             <p className="text-small text-default-500">Create an account to get started</p>
           </div>
           <Form
