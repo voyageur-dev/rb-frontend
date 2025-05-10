@@ -31,7 +31,6 @@ export default function BookmarksPage() {
     }
   };
 
-
   useEffect(() => {
     if (!session) {
       router.push(siteConfig.access.login);
@@ -65,7 +64,7 @@ export default function BookmarksPage() {
               {Object.entries(bookmarks || {}).map(([examId, questionIds]) => (
                 <div key={examId} className="mb-8">
                   <h2 className="text-2xl font-semibold mb-4">{examId}</h2>
-                  <div className="grid gap-4">
+                  <div className="flex-col gap-4">
                     {
                       questionIds.map((questionId) => (
                           <Chip key={questionId + 1} className="min-h-sm min-w-sm" radius="none" color="success" variant="flat">
@@ -86,7 +85,7 @@ export default function BookmarksPage() {
               </p>
               <button 
                 className="mt-4 px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors"
-                onClick={() => router.push('/')}
+                onClick={() => router.push('/browse')}
               >
                 Browse Questions
               </button>
