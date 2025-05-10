@@ -4,6 +4,7 @@ import { useSession } from "next-auth/react";
 import { Pagination, Spinner } from "@heroui/react";
 import Cookies from "js-cookie";
 import { getBookmarks } from "@/lib/api/bookmarks";
+import { getMetadata } from "@/lib/api/metadata";
 
 
 export interface Question {
@@ -49,21 +50,11 @@ export default function QuestionPanel({ examId, questionId }) {
 
   const fetchMetadata = async () => {
     try {
-      const resp = await fetch(`${process.env.NEXT_PUBLIC_GATEWAY_BASEURL}/rb/metadata`,
-        {
-          headers: {
-            Authorization: `Bearer ${session.accessToken}`
-          }
-        }
-      );
+      const { data } = await getMetadata(session);
 
-      if (resp.ok) {
-        const { data } = await resp.json();
-
-        for (const metadata of data) {
-          if (metadata.examId === examId) {
-            setCount(metadata.count);
-          }
+      for (const metadata of data) {
+        if (metadata.examId === examId) {
+          setCount(metadata.count);
         }
       }
     } catch (error) {
@@ -92,8 +83,6 @@ export default function QuestionPanel({ examId, questionId }) {
         params.append('lastEvaluatedKey', String(lastKey));
       }
 
-      console.log(params.toString());
-
       const response = await fetch(`${process.env.NEXT_PUBLIC_GATEWAY_BASEURL}/rb/questions?${params.toString()}`,
         {
           headers: {
@@ -109,6 +98,7 @@ export default function QuestionPanel({ examId, questionId }) {
           loadedQuestions.set(question.questionId, question);
         }
 
+        setQuestions(loadedQuestions);
         setIndex(questions[0].questionId);
         setLastEvaluatedKey(questions[questions.length - 1].questionId);
       }
@@ -120,56 +110,50 @@ export default function QuestionPanel({ examId, questionId }) {
   };
 
   useEffect(() => {
-    if (session) {
-      fetchMetadata();
-      fetchBookmarks();
+    if (!loadedQuestions.has(index)) {
+      fetchQuestions(index - 1);
     }
-  }, [session]);
+    fetchMetadata();
+    fetchBookmarks();
+  }, []);
 
   useEffect(() => {
-    if (session) {
-      if (!loadedQuestions.has(index)) {
-        if (index === 0) {
-          fetchQuestions(-1);
-        }
-        else {
-          fetchQuestions(index - 1);
-        }
-      }
+    if (!loadedQuestions.has(index)) {
+      fetchQuestions(index - 1);
     }
   }, [index]);
 
-  if (isLoading) {
-    return <Spinner color="warning" size="lg" />;
-  }
-
   return (
-    <div className="flex flex-col gap-3">
-      {
-        bookmarks && count > 0 && loadedQuestions.get(index) && (
-          <>
-            <QuestionCard
-              key={index}
-              questionData={loadedQuestions.get(index)}
-              isBookmarked={bookmarks.has(index)}
-              onBookmarkEvent={() => {
-                if (bookmarks.has(index)) {
-                  bookmarks.delete(index);
-                }
-                else {
-                  bookmarks.add(index);
-                }
-            }}
-            />
+    <>
+    {
+      isLoading ? <Spinner color="warning" size="lg" /> :
+      <div className="flex flex-col gap-3">
+        {
+          bookmarks && count > 0 && loadedQuestions.get(index) && (
+            <>
+              <QuestionCard
+                key={index}
+                questionData={loadedQuestions.get(index)}
+                isBookmarked={bookmarks.has(index)}
+                onBookmarkEvent={() => {
+                  if (bookmarks.has(index)) {
+                    bookmarks.delete(index);
+                  } else {
+                    bookmarks.add(index);
+                  }
+                }}
+              />
               <Pagination
                 className="flex flex-row item-center justify-center"
                 initialPage={index + 1}
                 total={count}
                 onChange={page => setIndex(page - 1)}
               />
-          </>
-        )
-      }
-    </div>
+            </>
+          )
+        }
+      </div>
+    }
+    </>
   );
 }
