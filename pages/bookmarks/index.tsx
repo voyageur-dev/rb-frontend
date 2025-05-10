@@ -6,7 +6,7 @@ import { siteConfig } from "@/config/site";
 import { useRouter } from "next/router";
 import { Spinner } from "@heroui/react";
 import { Chip } from "@heroui/chip";
-import { Button } from "@heroui/button";
+import { getBookmarks } from "@/lib/api/bookmarks";
 
 interface BookmarkData {
   [examId: string]: number[];
@@ -17,25 +17,15 @@ export default function BookmarksPage() {
   const router = useRouter();
   const [bookmarks, setBookmarks] = useState<BookmarkData | null>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
 
 
   const fetchBookmarks = async () => {
     try {
-      const resp = await fetch(`${process.env.NEXT_PUBLIC_GATEWAY_BASEURL}/rb/bookmarks`, {
-        headers: {
-          'Authorization': `Bearer ${session?.accessToken}`,
-          'Content-Type': 'application/json'
-        }
-      });
-
-      if (!resp.ok) {
-        throw new Error('Failed to fetch bookmarks');
-      }
-      const { bookmarks } = await resp.json();
+      setLoading(true);
+      const { bookmarks } = await getBookmarks(session);
       setBookmarks(bookmarks);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred');
+      console.log(err);
     } finally {
       setLoading(false);
     }
@@ -56,17 +46,6 @@ export default function BookmarksPage() {
       <DefaultLayout>
         <div className="flex items-center justify-center min-h-[60vh]">
           <Spinner className="h-12 w-12" color="warning" />
-        </div>
-      </DefaultLayout>
-    );
-  }
-
-  if (error) {
-    return (
-      <DefaultLayout>
-        <div className="flex flex-col items-center justify-center min-h-[60vh]">
-          <div className="text-red-500 text-xl mb-4">Error</div>
-          <p className="text-gray-600 dark:text-gray-300">{error}</p>
         </div>
       </DefaultLayout>
     );

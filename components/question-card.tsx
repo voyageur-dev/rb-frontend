@@ -5,11 +5,12 @@ import { Button } from "@heroui/button";
 import { FaRegBookmark, FaBookmark } from "react-icons/fa";
 import { useSession } from "next-auth/react";
 import { Question } from "@/components/question-panel";
+import { createBookmark, deleteBookmark } from "@/lib/api/bookmarks";
 
 interface QuestionCardProps {
   questionData: Question;
   isBookmarked: boolean;
-  onBookmarkEvent: (event: Event) => void;
+  onBookmarkEvent: () => void;
 }
 
 export default function QuestionCard({ questionData, isBookmarked, onBookmarkEvent }: QuestionCardProps) {
@@ -31,37 +32,10 @@ export default function QuestionCard({ questionData, isBookmarked, onBookmarkEve
   const handleBookmark = async (examId: string, questionId: number) => {
     try {
       if (bookmarked) {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_GATEWAY_BASEURL}/rb/bookmarks/${examId}/${questionId}`, {
-          method: 'DELETE',
-          headers: {
-            Authorization: `Bearer ${session.accessToken}`
-          },
-        });
-
-        if (!res.ok) {
-          throw new Error('Failed to unbookmark');
-        }
-
-        console.log('Unbookmark success');
+        await deleteBookmark(session, examId, questionId);
       }
       else {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_GATEWAY_BASEURL}/rb/bookmarks`, {
-          method: 'POST',
-          headers: {
-            Authorization: `Bearer ${session.accessToken}`,
-            "content-type": "application/json",
-          },
-          body: JSON.stringify({
-            examId: examId,
-            questionId: questionId
-          }),
-        });
-
-        if (res.status !== 201) {
-          throw new Error('Failed to bookmark');
-        }
-
-        console.log('Bookmark success');
+        await createBookmark(session, examId, questionId);
       }
     } catch (err) {
       console.error('Error bookmarking:', err);

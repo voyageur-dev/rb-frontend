@@ -7,6 +7,7 @@ import { useSession } from "next-auth/react";
 import { siteConfig } from "@/config/site";
 import { useRouter } from "next/router";
 import Cookies from "js-cookie";
+import { getMetadata } from "@/lib/api/metadata";
 
 type Metadata = {
   examId: string;
@@ -19,7 +20,7 @@ export const columns = [
 ];
 
 export default function DocsPage() {
-  const [metadata, setMetadata] = useState([]);
+  const [metadata, setMetadata] = useState<Metadata[]>([]);
   const { data: session } = useSession();
   const router = useRouter();
 
@@ -48,18 +49,8 @@ export default function DocsPage() {
 
   const fetchMetadata = async () => {
     try {
-      const resp = await fetch(`${process.env.NEXT_PUBLIC_GATEWAY_BASEURL}/rb/metadata`,
-        {
-          headers: {
-            Authorization: `Bearer ${session.accessToken}`
-          }
-        }
-      );
-
-      if (resp.ok) {
-        const { data } = await resp.json();
-        setMetadata(data);
-      }
+      const { data } = await getMetadata(session);
+      setMetadata(data);
     } catch (error) {
       console.log(error);
     }

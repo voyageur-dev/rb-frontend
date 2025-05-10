@@ -41,12 +41,10 @@ export default function DocsPage() {
         return;
       }
 
-      const req: RegisterRequest = {
+      const { username } = await register({
         email: data.email.toString(),
         password: data.password.toString(),
-      };
-
-      const { username } = await register(req);
+      });
 
       setUsername(username);
       setRequiredVerification(true);

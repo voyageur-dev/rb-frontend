@@ -4,10 +4,11 @@ import { Modal, ModalBody, ModalContent, ModalFooter, ModalHeader } from "@herou
 import { addToast, InputOtp, useDisclosure } from "@heroui/react";
 import { Form } from "@heroui/form";
 import { useRouter } from "next/router";
+import { confirmCode, resendCode } from "@/lib/api/users";
 
 
 interface VerificationFormProps {
-  username: String;
+  username: string;
 }
 
 export default function VerificationForm({ username }: VerificationFormProps) {
@@ -19,20 +20,10 @@ export default function VerificationForm({ username }: VerificationFormProps) {
 
     const formData = new FormData(e.currentTarget);
     const code = formData.get("code");
-    console.log(formData);
 
-    const resp = await fetch(`${process.env.NEXT_PUBLIC_GATEWAY_BASEURL}/users/code`, {
-      method: 'POST',
-      headers: {
-        "content-type": "application/json",
-      },
-      body: JSON.stringify({
-        username: username,
-        code: code,
-      }),
-    });
+    try {
+      await confirmCode(username, code);
 
-    if (resp.ok) {
       addToast({
         title: "Verification Success",
         description: "You can now sign in with your account.",
@@ -42,8 +33,7 @@ export default function VerificationForm({ username }: VerificationFormProps) {
 
       onClose(); // close the modal
       router.push("/login");
-    }
-    else {
+    } catch (err) {
       addToast({
         title: "Verification Error",
         description: "Please try again.",
@@ -56,25 +46,16 @@ export default function VerificationForm({ username }: VerificationFormProps) {
   }
 
   const handleResend = async () => {
-    const resp = await fetch(`${process.env.NEXT_PUBLIC_GATEWAY_BASEURL}/users/resend`, {
-      method: 'POST',
-      headers: {
-        "content-type": "application/json",
-      },
-      body: JSON.stringify({
-        username: username,
-      }),
-    });
+    try {
+      await resendCode(username);
 
-    if (resp.ok) {
       addToast({
         title: "Verification Code Resend",
         description: "Please check your email for the verification code.",
         color: "success",
         promise: new Promise((resolve) => setTimeout(resolve, 1000))
       });
-    }
-    else {
+    } catch (err) {
       addToast({
         title: "Error Sending Verification",
         description: "Please try again.",

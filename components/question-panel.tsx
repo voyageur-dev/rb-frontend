@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { Pagination, Spinner } from "@heroui/react";
 import Cookies from "js-cookie";
+import { getBookmarks } from "@/lib/api/bookmarks";
 
 
 export interface Question {
@@ -72,31 +73,8 @@ export default function QuestionPanel({ examId, questionId }) {
 
   const fetchBookmarks = async () => {
     try {
-
-      const params = new URLSearchParams({
-        examId: examId,
-      });
-
-      const response = await fetch(`${process.env.NEXT_PUBLIC_GATEWAY_BASEURL}/rb/bookmarks?${params.toString()}`,
-        {
-          headers: {
-            Authorization: `Bearer ${session.accessToken}`
-          }
-        }
-      );
-
-      if (response.ok) {
-        const data = await response.json();
-        const newBookmarks = new Set();
-
-        if (data.bookmarks && examId in data.bookmarks) {
-          for (const id of data.bookmarks[examId]) {
-            newBookmarks.add(id);
-          }
-        }
-
-        setBookmarks(newBookmarks);
-      }
+      const data = await getBookmarks(session, examId);
+      setBookmarks(new Set(data.bookmarks?.[examId] ?? []));
     } catch (error) {
       console.log(error);
     }
@@ -155,8 +133,6 @@ export default function QuestionPanel({ examId, questionId }) {
           fetchQuestions(-1);
         }
         else {
-          console.log("here")
-          console.log(index - 1);
           fetchQuestions(index - 1);
         }
       }
