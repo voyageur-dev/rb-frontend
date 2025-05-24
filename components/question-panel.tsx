@@ -50,11 +50,11 @@ export default function QuestionPanel({ examId, questionId }) {
 
   const fetchMetadata = async () => {
     try {
-      const { data } = await getMetadata(session);
+      const { metadata } = await getMetadata(session);
 
-      for (const metadata of data) {
-        if (metadata.examId === examId) {
-          setCount(metadata.count);
+      for (const exam of metadata) {
+        if (exam.examId === examId) {
+          setCount(exam.questionCount);
         }
       }
     } catch (error) {
