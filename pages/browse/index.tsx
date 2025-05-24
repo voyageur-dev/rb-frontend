@@ -11,7 +11,8 @@ import { getMetadata } from "@/lib/api/metadata";
 
 type Metadata = {
   examId: string;
-  count: number;
+  name: string;
+  questionCount: number;
 };
 
 export const columns = [
@@ -49,8 +50,8 @@ export default function DocsPage() {
 
   const fetchMetadata = async () => {
     try {
-      const { data } = await getMetadata(session);
-      setMetadata(data);
+      const { metadata } = await getMetadata(session);
+      setMetadata(metadata);
     } catch (error) {
       console.log(error);
     }
@@ -83,7 +84,7 @@ export default function DocsPage() {
                             <ListboxItem
                               key={item.examId}
                             >
-                              {item.examId}
+                              {item.name}
                             </ListboxItem>
                           )
                         }
