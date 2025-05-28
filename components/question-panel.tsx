@@ -20,9 +20,6 @@ export interface Question {
   sourceUrl: string;
 }
 
-interface QuestionsResponse {
-  questions: Question[];
-}
 
 export default function QuestionPanel({ examId, questionId }) {
   const [index, setIndex] = useState(questionId - 1);
@@ -92,7 +89,7 @@ export default function QuestionPanel({ examId, questionId }) {
       );
 
       if (response.ok) {
-        const { questions }: QuestionsResponse = await response.json();
+        const questions: Question[] = await response.json();
 
         for (const question of questions) {
           loadedQuestions.set(question.questionId, question);
