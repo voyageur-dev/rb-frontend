@@ -47,7 +47,7 @@ export default function QuestionPanel({ examId, questionId }) {
 
   const fetchMetadata = async () => {
     try {
-      const { metadata } = await getMetadata(session);
+      const metadata = await getMetadata(session);
 
       for (const exam of metadata) {
         if (exam.examId === examId) {

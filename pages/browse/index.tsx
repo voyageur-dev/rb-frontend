@@ -50,7 +50,7 @@ export default function DocsPage() {
 
   const fetchMetadata = async () => {
     try {
-      const { metadata } = await getMetadata(session);
+      const metadata = await getMetadata(session);
       setMetadata(metadata);
     } catch (error) {
       console.log(error);
