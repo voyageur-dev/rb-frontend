@@ -65,7 +65,7 @@ export default function QuestionPanel({ examId, questionId }) {
   const fetchBookmarks = async () => {
     try {
       const data = await getBookmarks(session, examId);
-      setBookmarks(new Set(data.bookmarks?.[examId] ?? []));
+      setBookmarks(new Set(data?.[examId] ?? []));
     } catch (error) {
       console.log(error);
     }

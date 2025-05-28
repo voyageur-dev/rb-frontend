@@ -22,7 +22,7 @@ export default function BookmarksPage() {
   const fetchBookmarks = async () => {
     try {
       setLoading(true);
-      const { bookmarks } = await getBookmarks(session);
+      const bookmarks = await getBookmarks(session);
       setBookmarks(bookmarks);
     } catch (err) {
       console.log(err);
